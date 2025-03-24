@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT-0
+galaxy_info:
+  author: Pannekoek
+  description: >
+    🇳🇱 Deze rol automatiseert de installatie van een Linux-laptop voor softwareontwikkelaars.
+    Veelgebruikte applicaties zoals code-editors, browsers, beveiligingstools en ontwikkelpakketten worden vooraf geïnstalleerd.
+    Geschikt voor een snelle en consistente set-up van werkstations.
+
+    🇬🇧 This role automates the setup of a Linux laptop for software developers.
+    Commonly used applications such as code editors, browsers, security tools, and development packages are pre-installed.
+    Ideal for quickly preparing consistent developer workstations.
+
+  license: MIT
+
+  min_ansible_version: 2.10
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - 24.04
+    - name: RedHat
+      versions:
+        - 9
+
+  galaxy_tags:
+    - laptop
+    - developer
+    - workstation
+    - desktop
+    - automation
+    - linux
+    - ubuntu
+    - redhat
+    - ansible
+    - software
+    - devtools
+    - configuration
+    - setup
+
+dependencies: []

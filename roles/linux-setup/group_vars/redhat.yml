@@ -1,0 +1,62 @@
+---
+os_family: "redhat"
+package_type: "rpm"
+package_manager: "dnf"
+
+# Repository configuratie voor RedHat
+repositories:
+  - repo: https://packages.microsoft.com/yumrepos/vscode
+    state: present
+    filename: vscode
+    description: Microsoft Visual Studio Code
+    gpgcheck: true
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+    enabled: true
+
+flatpak_apps_redhat:
+  - name: "OBS Studio"
+    id: "com.obsproject.Studio"
+
+# Desktop packages
+kde_packages:
+  - plasma-desktop
+  - plasma-workspace
+  - plasma-workspace-wayland
+  - sddm
+
+gnome_packages:
+  - gnome-desktop
+  - gnome-desktop-environment
+  - gnome-shell
+  - gnome-shell-extension-manager
+  - gnome-shell-extension-appindicator
+  - gnome-shell-extension-top-icons-plus
+  - gnome-shell-extension-dashtodock
+  - gnome-shell-extension-dashtodock
+  - gnome-shell-extension-dashtodock
+
+# Development tools
+development_packages_os_specific:
+  - gcc
+  - gcc-c++
+  - python3-devel
+  - python3-virtualenv
+  - chromium
+
+# Citrix dependencies
+citrix_dependencies:
+  - webkit2gtk3
+  - gtk3
+  - libxml2
+citrix_temp_file: "/tmp/citrix-workspace.rpm"
+
+# Python packages
+python_packages:
+  - ansible
+  - ansible-lint
+  - molecule
+  - pytest
+  - yamllint
+  - black
+  - flake8
+  - mypy

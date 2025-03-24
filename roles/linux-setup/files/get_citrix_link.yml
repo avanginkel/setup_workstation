@@ -1,0 +1,80 @@
+---
+- name: Haal Citrix Workspace downloadlink op
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Maak download directory aan
+      ansible.builtin.file:
+        path: /tmp/citrix
+        state: directory
+        mode: '0755'
+
+    - name: Bepaal architectuurlabel voor Ubuntu
+      ansible.builtin.set_fact:
+        arch_label: "amd64"
+      when: 
+        - ansible_os_family == "Debian"
+        - ansible_architecture == "x86_64"
+
+    - name: Bepaal architectuurlabel voor RHEL
+      ansible.builtin.set_fact:
+        arch_label: "x86_64"
+      when: 
+        - ansible_os_family == "RedHat"
+        - ansible_architecture == "x86_64"
+
+    - name: Bepaal architectuurlabel voor ARM
+      ansible.builtin.set_fact:
+        arch_label: "arm64"
+      when: ansible_architecture == "aarch64"
+
+    - name: Bepaal package-type op basis van distributie
+      ansible.builtin.set_fact:
+        package_type: "{{ 'deb' if ansible_os_family == 'Debian' else 'rpm' }}"
+
+    - name: Download Citrix HTML pagina
+      ansible.builtin.uri:
+        url: https://www.citrix.com/downloads/workspace-app/linux/workspace-app-for-linux-latest.html
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: citrix_html
+
+    - name: Zoek alle downloadlinks in HTML
+      vars:
+        pattern: "//downloads\\.citrix\\.com/[^\"']+(?:icaclient|ICAClient-rhel)[^\"']+\\.{{ package_type }}[^\"']*"
+      set_fact:
+        all_links: "{{ citrix_html.content | regex_findall(pattern) }}"
+      when: citrix_html is defined
+
+    - name: Toon alle gevonden links (debug)
+      ansible.builtin.debug:
+        msg: "Gevonden links: {{ all_links }}"
+      when: all_links is defined
+
+    - name: Filter downloadlinks op architectuur
+      set_fact:
+        filtered_links: "{{ all_links | select('match', '.*' + arch_label + '.*') | list }}"
+      when: all_links is defined
+
+    - name: Toon gefilterde links (debug)
+      ansible.builtin.debug:
+        msg: "Gefilterde links: {{ filtered_links }}"
+      when: filtered_links is defined
+
+    - name: Selecteer juiste downloadlink
+      set_fact:
+        citrix_download_url: "https:{{ filtered_links | first | default('') }}"
+      when: filtered_links | length > 0
+
+    - name: Toon resultaat
+      ansible.builtin.debug:
+        msg: "  ✅ GEVONDEN: {{ citrix_download_url }}"
+      when: citrix_download_url is defined
+
+    - name: Download Citrix Workspace App
+      ansible.builtin.get_url:
+        url: "{{ citrix_download_url }}"
+        dest: "/tmp/citrix/citrix-workspace.{{ package_type }}"
+        mode: '0644'
+      when: citrix_download_url is defined 

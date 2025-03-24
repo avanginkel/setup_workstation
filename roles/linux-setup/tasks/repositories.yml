@@ -1,0 +1,65 @@
+---
+# Repository configuratie
+
+- name: Importeer Microsoft GPG sleutel voor Ubuntu
+  ansible.builtin.apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
+  when: ansible_os_family == "Debian"
+  tags: [repositories]
+
+- name: Importeer EPEL GPG sleutel
+  ansible.builtin.rpm_key:
+    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags: [repositories]
+
+- name: Installeer EPEL repository
+  ansible.builtin.package:
+    name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+    disable_gpg_check: yes
+  when: ansible_os_family == "RedHat"
+  tags: [repositories]
+
+- name: Activeer CRB repository via subscription-manager
+  ansible.builtin.command:
+    cmd: "subscription-manager repos --enable codeready-builder-for-rhel-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}-rpms"
+  when: ansible_os_family == "RedHat"
+  tags: [repositories]
+
+- name: Installeer repository packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repositories }}"
+  when: item is not mapping
+  tags: [repositories]
+
+- name: Configureer repositories
+  ansible.builtin.yum_repository:
+    name: "{{ item.filename }}"
+    description: "{{ item.description | default(item.filename) }}"
+    baseurl: "{{ item.repo }}"
+    gpgcheck: "{{ item.gpgcheck | default(true) }}"
+    gpgkey: "{{ item.gpgkey }}"
+    enabled: "{{ item.enabled | default(true) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ repositories }}"
+  when: item is mapping and ansible_os_family == "RedHat"
+  tags: [repositories]
+
+- name: Configureer repositories
+  ansible.builtin.apt_repository:
+    repo: "{{ item.repo }}"
+    state: "{{ item.state | default('present') }}"
+    filename: "{{ item.filename }}"
+  loop: "{{ repositories }}"
+  when: item is mapping and ansible_os_family == "Debian"
+  tags: [repositories]
+
+- name: Update package cache
+  ansible.builtin.package:
+    update_cache: yes
+  tags: [repositories]

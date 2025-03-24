@@ -1,0 +1,15 @@
+---
+# Desktop configuratie
+
+- name: Installeer KDE Plasma Desktop
+  ansible.builtin.package:
+    name: "{{ kde_packages }}"
+    state: present
+  when:
+    - install_kde | default(false)
+
+- name: Installeer GNOME Desktop
+  ansible.builtin.package:
+    name: "{{ gnome_packages }}"
+    state: present
+  when: install_gnome | default(false)

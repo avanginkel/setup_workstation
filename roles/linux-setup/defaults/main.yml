@@ -1,0 +1,84 @@
+#SPDX-License-Identifier: MIT-0
+---
+
+
+# toggable stuff
+
+install_kde: false
+install_gnome: true
+
+# defaults file for linux-setup
+citrix_temp_file: "/tmp/citrix-workspace.deb"
+citrix_install_path: "/opt/Citrix/ICAClient"
+    
+# Standaard variabelen voor de linux-setup rol
+required_packages:
+  - python3
+  - python3-selenium
+  - chromium-chromedriver
+  - wget
+
+development_packages:
+  - ansible-core
+  - ansible-lint
+  - code
+  - curl
+  - firefox
+  - git
+  - gnome-keyring
+  - nodejs
+  - npm
+  - podman
+  - python3
+  - python3-pip
+  - vim
+  - wget
+  - yamllint
+
+repository_apps:
+  - code
+  - thunderbird
+  - gimp
+  - inkscape
+# Configuratie opties
+install_kde: true
+install_extra_tools: true
+install_citrix: true
+
+# Versies en specifieke packages
+python_version: "3.9"
+ansible_version: "latest"
+vscode_extensions:
+  - ms-python.python
+  - redhat.ansible
+  - hashicorp.terraform
+    
+ansible_ssh_private_key_file: ~/.ssh/id_homelab
+
+# Flatpak configuratie
+flathub_repo: https://flathub.org/repo/flathub.flatpakrepo
+flatpak_apps:
+  - name: "WhatsApp"
+    id: "io.github.mimbrero.WhatsAppDesktop"
+  - name: "Discord"
+    id: "com.discordapp.Discord"
+  - name: "Teams"
+    id: "com.microsoft.Teams"
+  - name: "GitKraken"
+    id: "com.axosoft.GitKraken"
+  - name: "Insomnia"
+    id: "rest.insomnia.Insomnia"
+  - name: "KeePassXC"
+    id: "org.keepassxc.KeePassXC"
+  - name: "Joplin"
+    id: "net.cozic.joplin_desktop"
+  - name: "OnlyOffice"
+    id: "org.onlyoffice.desktopeditors"
+  - name: "OBS Studio"
+    id: "com.obsproject.Studio"
+  - name: "Signal"
+    id: "org.signal.Signal"
+  - name: "Telegram"
+    id: "org.telegram.desktop"
+  - name: "Spotify"
+    id: "com.spotify.Client"

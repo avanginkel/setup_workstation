@@ -1,0 +1,38 @@
+---
+- name: Setup development workstations
+  hosts: development
+  gather_facts: true
+  pre_tasks:
+    - name: Groepeer hosts op basis van OS familie
+      group_by:
+        key: "os_{{ ansible_os_family | lower }}"
+
+    - name: Stel OS-specifieke variabelen in
+      set_fact:
+        os_type: "{{ 'redhat' if ansible_os_family == 'RedHat' else 'ubuntu' if ansible_distribution == 'Ubuntu' else 'unknown' }}"
+        os_version: "{{ ansible_distribution_major_version }}"
+
+    - name: Controleer OS ondersteuning
+      fail:
+        msg: |
+          OS {{ ansible_distribution }} {{ ansible_distribution_version }} wordt niet ondersteund.
+          Ondersteunde versies:
+          - RedHat/CentOS 9
+          - Ubuntu 24.04
+      when: >
+        (os_type == 'redhat' and os_version != '9') or
+        (os_type == 'ubuntu' and os_version != '24') or
+        os_type == 'unknown'
+
+    - name: Toon OS informatie
+      debug:
+        msg: "Host {{ inventory_hostname }} draait {{ ansible_distribution }} {{ ansible_distribution_version }}"
+      tags: ['debug']
+
+- name: Configureer workstations
+  hosts: development
+  vars_files:
+    - "group_vars/{{ os_type }}.yml"
+  tasks:
+    - name: Include gemeenschappelijke taken
+      ansible.builtin.include_tasks: tasks/main.yml 

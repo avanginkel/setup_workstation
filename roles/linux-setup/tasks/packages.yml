@@ -1,0 +1,46 @@
+---
+# Package installaties
+
+
+- name: Installeer alle packages in parallel
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  register: package_results
+  loop:
+    - "{{ development_packages }}"
+    - "{{ development_packages_os_specific }}"
+  tags: [development]
+
+- name: Toon status package installaties
+  ansible.builtin.debug:
+    msg: "Package {{ item.item }} is geïnstalleerd: {{ item.changed | ternary('Ja', 'Nee') }}"
+  loop: "{{ package_results.results }}"
+  tags: [development]
+
+- name: Maak Python virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/ansible-venv
+  when: is_ubuntu
+  tags: [development]
+
+- name: Installeer Python packages
+  ansible.builtin.pip:
+    name: "{{ python_packages }}"
+    state: present
+    virtualenv: /opt/ansible-venv
+    virtualenv_command: python3 -m venv
+  tags: [python_packages] 
+
+- name: Update alle packages
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+  register: update_result
+  tags: [update]
+
+- name: Toon status package updates
+  ansible.builtin.debug:
+    msg: "Packages zijn bijgewerkt: {{ update_result.changed | ternary('Ja', 'Nee') }}"
+  tags: [update]
+

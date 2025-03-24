@@ -1,0 +1,95 @@
+---
+# Applicatie installaties
+
+# Repository applicaties
+- name: Installeer repository applicaties
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repository_apps }}"
+  tags: [applications]
+
+- name: Installeer extra repository applicaties
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ repository_apps_extra }}"
+  when: ansible_os_family == "Debian"
+  tags: [applications]
+
+# Citrix Workspace App installatie
+- name: Installeer Citrix Workspace App
+  block:
+    - name: Installeer Citrix dependencies
+      ansible.builtin.package:
+        name: "{{ citrix_dependencies }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+      tags: [citrix]
+
+    - name: Kopieer Citrix download script
+      ansible.builtin.copy:
+        src: files/get_citrix_link.yml
+        dest: /tmp/get_citrix_link.yml
+        mode: '0644'
+      tags: [citrix]
+
+    - name: Haal Citrix Workspace App op
+      ansible.builtin.command:
+        cmd: ansible-playbook /tmp/get_citrix_link.yml -i localhost, --connection=local --skip-tags citrix
+        chdir: /tmp
+      register: citrix_download
+      changed_when: citrix_download.rc == 0
+      failed_when: citrix_download.rc != 0
+      tags: [citrix]
+
+    - name: Installeer Citrix Workspace App
+      ansible.builtin.package:
+        name: "{{ citrix_temp_file }}"
+        state: present
+        disable_gpg_check: yes
+      tags: [citrix]
+
+    - name: Controleer Citrix installatie
+      ansible.builtin.stat:
+        path: "{{ citrix_install_path }}"
+      register: citrix_check
+      changed_when: false
+      tags: [citrix]
+
+    - name: Toon Citrix installatie status
+      ansible.builtin.debug:
+        msg: >
+          {% if citrix_check.stat.exists %}
+            ✅ Citrix Workspace App is geïnstalleerd
+          {% else %}
+            ❌ Citrix Workspace App is niet correct geïnstalleerd
+          {% endif %}
+      when: citrix_check is defined
+      tags: [citrix]
+
+# Flatpak configuratie
+- name: Installeer Flatpak
+  ansible.builtin.package:
+    name: flatpak
+    state: present
+  tags: [flatpak]
+
+- name: Voeg Flathub remote toe
+  ansible.builtin.command:
+    cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  tags: [flatpak]
+
+# Flatpak applicaties (alleen apps die niet via repositories beschikbaar zijn)
+- name: Installeer Flatpak applicaties
+  ansible.builtin.command:
+    cmd: "flatpak install -y flathub {{ item.id }}"
+  loop: "{{ flatpak_apps }}"
+  tags: [flatpak]
+
+- name: Installeer Flatpak applicaties op RedHat
+  ansible.builtin.command:
+    cmd: "flatpak install -y flathub {{ item.id }}"
+  loop: "{{ flatpak_apps_redhat }}"
+  when: ansible_os_family == "RedHat"
+  tags: [flatpak]
