@@ -69,6 +69,5 @@ MIT-0
 
 ## Author Information
 
-Author: Your Name  
-Company: Your Company (optional)
+Author: Pannekoek
 
