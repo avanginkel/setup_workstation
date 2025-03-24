@@ -25,15 +25,7 @@ kde_packages:
   - sddm
 
 gnome_packages:
-  - gnome-desktop
-  - gnome-desktop-environment
-  - gnome-shell
-  - gnome-shell-extension-manager
-  - gnome-shell-extension-appindicator
-  - gnome-shell-extension-top-icons-plus
-  - gnome-shell-extension-dashtodock
-  - gnome-shell-extension-dashtodock
-  - gnome-shell-extension-dashtodock
+  - "@Server with GUI"
 
 # Development tools
 development_packages_os_specific:

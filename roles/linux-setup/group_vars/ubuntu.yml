@@ -31,13 +31,7 @@ kde_packages:
 
 gnome_packages:
   - ubuntu-gnome-desktop
-  - gnome-desktop
-  - gnome-desktop-environment
-  - gnome-shell
-  - gnome-shell-extension-manager
-  - gnome-shell-extension-appindicator
-  - gnome-shell-extension-top-icons-plus
-  - gnome-shell-extension-dashtodock
+
 
 # Development tools
 development_packages_os_specific:

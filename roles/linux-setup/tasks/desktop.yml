@@ -1,15 +1,26 @@
 ---
 # Desktop configuratie
 
-- name: Installeer KDE Plasma Desktop
+- name: Installeer KDE Plasma Desktop (Ubuntu)
   ansible.builtin.package:
     name: "{{ kde_packages }}"
     state: present
   when:
     - install_kde | default(false)
 
-- name: Installeer GNOME Desktop
-  ansible.builtin.package:
+- name: Installeer GNOME Desktop (Ubuntu)
+  ansible.builtin.apt:
     name: "{{ gnome_packages }}"
     state: present
-  when: install_gnome | default(false)
+  when:
+    - ansible_os_family == "Debian"
+    - install_gnome | default(false)
+
+- name: Installeer GNOME desktop environment via DNF group
+  ansible.builtin.dnf:
+    name: "{{ gnome_packages }}"
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+    - install_gnome | default(false)
+  tags: [desktop]
