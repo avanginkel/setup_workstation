@@ -44,12 +44,20 @@
       tags: [citrix]
 
     - name: Installeer Citrix Workspace App
-      ansible.builtin.package:
+      ansible.builtin.dnf:
         name: "{{ citrix_temp_file }}"
         state: present
         disable_gpg_check: yes
       tags: [citrix]
+      when: ansible_os_family == "Redhat"
 
+    - name: Installeer Citrix Workspace App
+      ansible.builtin.apt:
+        name: "{{ citrix_temp_file }}"
+        state: present
+      tags: [citrix]
+      when: ansible_os_family == "Debian"
+      
     - name: Controleer Citrix installatie
       ansible.builtin.stat:
         path: "{{ citrix_install_path }}"
